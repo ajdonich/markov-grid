@@ -1,6 +1,9 @@
 ## Project: markov-grid
 
-This is a small study of Markov Decision Processes, based on this [Udacity Course Grid World Game](https://classroom.udacity.com/courses/ud600/lessons/4100878601/concepts/6382590580923). The [markov_game.py](https://github.com/ajdonich/markov-grid/blob/master/markov_game.py) script attempts to use the Bellman Equation to generate an optimal playing policy. 
+This is a small study of Markov Decision Processes, based on this [Udacity Course Grid World Game](https://classroom.udacity.com/courses/ud600/lessons/4100878601/concepts/6382590580923). (The course is excellent so far, btw. I understand  nuances of RL and the Bellman Equations much better already). My [markov_game.py](https://github.com/ajdonich/markov-grid/blob/master/markov_game.py) script attempts to learn the grid's optimal playing policy using the Bellman Equation:  
+
+![Bellman Equation](https://github.com/ajdonich/markov-grid/blob/master/media/BellmanEq_V.jpg)  
+![MDP Grid World](https://github.com/ajdonich/markov-grid/blob/master/media/mdp_grid_world.jpg)  
   
 ___
 
@@ -19,12 +22,11 @@ ___
 
 ### Execution:
 
-This example execution successively decrements the reward (from 0.0 to -20.0) of the negative absorbing sink in the game and prints full status whenever a new/different policy is generated. Note: the Udacity Course uses the value of -1.0 for the sink; otherwise I use the identical values the class specifies, however, I never converge precisely to the class's claimed [Optimal Policy](https://classroom.udacity.com/courses/ud600/lessons/4100878601/concepts/6512308690923), which, after this study, I suspect is at least partly erroneous, at least for state (2,3), which I believe logically (and as my study concluded) should map to action: DOWN to ensure avoidance of the negative sink. 
+The example execution below successively decrements (from 0.0 to -20.0) the negative reward of the absorbing sink at (1,3) and prints status whenever a new/different optimal policy is learned. Note: the Udacity Course uses the value of -1.0 for the sink; otherwise I use identical values to those specified in the course, however, I never converge precisely to the class's claimed [Optimal Policy](https://classroom.udacity.com/courses/ud600/lessons/4100878601/concepts/6512308690923). Either I am in error somehow, or the course it, but for example, at state (2,3), it seems logical (and as my study concludes) that DOWN is the optimal action, thus ensuring avoidance of the negative sink at (1,3). 
 
 ```
 $python3 markov_game.py 
 Neg sink reward: -0.0
-
 Policy Grid:
 ----------------
 | → | → | → | + |
@@ -55,38 +57,6 @@ V(s) Grid:
 (2,3) : ['-0.042', '-0.058', '-0.040', '-0.058'] : LEFT (-0.040)
 
 Neg sink reward: -1.0
-
-Policy Grid:
-----------------
-| → | → | → | + |
-----------------
-| ↑ | X | ↑ | - |
-----------------
-| ↑ | ← | ↑ | ↓ |
-----------------
-
-V(s) Grid:
-['0.009', '0.126', '0.382', '1.000']
-['-0.041', '0.000', '0.066', '-1.000']
-['-0.063', '-0.072', '-0.073', '-0.076']
-
- s    :    UP        DOWN      LEFT     RIGHT   :  MAX(V)
-------------------------------------------------------------
-(0,0) : ['-0.030', '-0.050', '-0.038', '0.009'] : RIGHT (0.009)
-(0,1) : ['0.030', '0.030', '-0.024', '0.126'] : RIGHT (0.126)
-(0,2) : ['0.169', '0.043', '0.033', '0.382'] : RIGHT (0.382)
-(0,3) : ABSORBED
-(1,0) : ['-0.041', '-0.069', '-0.059', '-0.059'] : UP (-0.041)
-(1,1) : N/A (UNREACHABLE)
-(1,2) : ['0.066', '-0.116', '0.002', '-0.425'] : UP (0.066)
-(1,3) : ABSORBED
-(2,0) : ['-0.063', '-0.072', '-0.070', '-0.074'] : UP (-0.063)
-(2,1) : ['-0.076', '-0.076', '-0.072', '-0.076'] : LEFT (-0.072)
-(2,2) : ['-0.021', '-0.076', '-0.069', '-0.071'] : UP (-0.021)
-(2,3) : ['-0.447', '-0.078', '-0.123', '-0.124'] : DOWN (-0.078)
-
-Neg sink reward: -2.0
-
 Policy Grid:
 ----------------
 | → | → | → | + |
@@ -97,27 +67,27 @@ Policy Grid:
 ----------------
 
 V(s) Grid:
-['0.008', '0.124', '0.380', '1.000']
-['-0.041', '0.000', '0.012', '-2.000']
-['-0.063', '-0.063', '-0.042', '-0.077']
+['0.009', '0.126', '0.382', '1.000']
+['-0.041', '0.000', '0.066', '-1.000']
+['-0.062', '-0.053', '-0.020', '-0.075']
 
  s    :    UP        DOWN      LEFT     RIGHT   :  MAX(V)
 ------------------------------------------------------------
-(0,0) : ['-0.030', '-0.050', '-0.038', '0.008'] : RIGHT (0.008)
-(0,1) : ['0.029', '0.029', '-0.024', '0.124'] : RIGHT (0.124)
-(0,2) : ['0.168', '0.021', '0.029', '0.380'] : RIGHT (0.380)
+(0,0) : ['-0.030', '-0.050', '-0.038', '0.009'] : RIGHT (0.009)
+(0,1) : ['0.030', '0.030', '-0.024', '0.126'] : RIGHT (0.126)
+(0,2) : ['0.169', '0.043', '0.033', '0.382'] : RIGHT (0.382)
 (0,3) : ABSORBED
 (1,0) : ['-0.041', '-0.069', '-0.059', '-0.059'] : UP (-0.041)
 (1,1) : N/A (UNREACHABLE)
-(1,2) : ['0.012', '-0.156', '-0.018', '-0.823'] : UP (0.012)
+(1,2) : ['0.066', '-0.095', '0.005', '-0.422'] : UP (0.066)
 (1,3) : ABSORBED
-(2,0) : ['-0.063', '-0.071', '-0.070', '-0.070'] : UP (-0.063)
-(2,1) : ['-0.070', '-0.070', '-0.071', '-0.063'] : RIGHT (-0.063)
-(2,2) : ['-0.042', '-0.064', '-0.067', '-0.072'] : UP (-0.042)
-(2,3) : ['-0.846', '-0.077', '-0.161', '-0.174'] : DOWN (-0.077)
+(2,0) : ['-0.062', '-0.071', '-0.070', '-0.066'] : UP (-0.062)
+(2,1) : ['-0.065', '-0.065', '-0.070', '-0.053'] : RIGHT (-0.053)
+(2,2) : ['-0.020', '-0.054', '-0.059', '-0.067'] : UP (-0.020)
+(2,3) : ['-0.445', '-0.075', '-0.102', '-0.124'] : DOWN (-0.075)
 
+Neg sink reward: -2.0
 Neg sink reward: -3.0
-
 Policy Grid:
 ----------------
 | → | → | → | + |
@@ -146,5 +116,23 @@ V(s) Grid:
 (2,1) : ['-0.075', '-0.075', '-0.073', '-0.073'] : LEFT (-0.073)
 (2,2) : ['-0.064', '-0.073', '-0.074', '-0.077'] : UP (-0.064)
 (2,3) : ['-1.247', '-0.079', '-0.219', '-0.225'] : DOWN (-0.079)
+
+Neg sink reward: -4.0
+Neg sink reward: -5.0
+Neg sink reward: -6.0
+Neg sink reward: -7.0
+Neg sink reward: -8.0
+Neg sink reward: -9.0
+Neg sink reward: -10.0
+Neg sink reward: -11.0
+Neg sink reward: -12.0
+Neg sink reward: -13.0
+Neg sink reward: -14.0
+Neg sink reward: -15.0
+Neg sink reward: -16.0
+Neg sink reward: -17.0
+Neg sink reward: -18.0
+Neg sink reward: -19.0
+Neg sink reward: -20.0
 
 ```

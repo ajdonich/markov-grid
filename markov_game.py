@@ -84,15 +84,15 @@ class MDPBoard:
 
 
     # Policy maps state -> action (returns action with highest expected 
-    # utility value w/respect to self.V or None if s is absorbing state)
+    # utility value w/respect to V(s) or None if s is absorbing state)
     def policy(self, s):
         if s in self.absorbs: return None
         assert s not in self.blocks, f"ERROR: unreachable/blocked state: {s}"        
         return MDPBoard.ACTIONS[np.argmax(self.expectutils(self.nxtstates(s)))]
     
     # Given current state, returns the four (unweighted) possible
-    # next states s', ordered: [UP, DOWN, LEFT, RIGHT], accounting
-    # for actions that 'collide w/a wall' => then returned s' == s
+    # next states s', ordered: [UP, DOWN, LEFT, RIGHT]. If action
+    # 'collides w/a wall' or s is absorbing state, returned s' == s
     def nxtstates(self, s):
         if s in self.absorbs: return [s] * 4
         return[s if sp in self.blocks else sp 
@@ -111,14 +111,15 @@ class MDPBoard:
         elif a == 'RIGHT': return [0.1, 0.1, 0.0, 0.8]
         else: assert False, f"ERROR, invalid actions {a}"
     
+    # Calculates part of our Bellman Value Eq that varies with action.
     # Returns list for all actions ordered: [UP, DOWN, LEFT, RIGHT],
-    # of SUM over s' ( T(s,a,s')*V(s') ), a piece of the Bellman Eq.
+    # of SUMs over s' of T(s'|s,a) * V(s'), i.e. Σ T(s'|s,a)V(s')
     def expectutils(self, sprimes):
         return [sum([Tprob * self.V[xp][yp] for Tprob, (xp,yp) 
             in zip(self.Tprobs(a), sprimes)]) for a in MDPBoard.ACTIONS]
     
     # Iterates through ngames, each starting at state s0 and ending
-    # at one of the absorbing states. Updates self.V after each move.
+    # at one of the absorbing states. Updates V(s) after each move.
     # With the 3x4 grid, empirically, 1000 games is plenty to converge.
     def learn_pvalues(self, s0=(2,0), ngames=1000, debug=0):
     #{
@@ -141,7 +142,7 @@ class MDPBoard:
     #}
     
     # Recurse through a full game of moves following latest optimal policy (and 
-    # stochastic randomness of transition probs). Updates self.V after each move.
+    # stochastic randomness of transition probs). Updates V(s) after each move.
     def _play_game(self, s):
         a = self.policy(s)
         if a is not None:
@@ -163,10 +164,10 @@ if __name__ == '__main__':
 
         game = MDPBoard()
         game.learn_pvalues(debug=0)
+        print(f"Neg sink reward: {MDPBoard.REWARD_NEG_SINK}")
 
         pol = game.policygrid()
         if prevpol is None or pol != prevpol:
-            print(f"Neg sink reward: {MDPBoard.REWARD_NEG_SINK}\n")
             game.print_policies(pol)
             game.print_vtable()
             prevpol = pol
