@@ -1,8 +1,7 @@
-import copy
 import numpy as np
 from itertools import product
 
-class BoardMDP:
+class MDPBoard:
 #{
     GAMMA = 0.5 # Discount rate
     REWARD_POS_SINK = 1.0
@@ -17,15 +16,15 @@ class BoardMDP:
         self.w, self.h = w, h        
         self.absorbs = {(0,3),(1,3)}
         self.blocks = {(1,1)}
-        self.gamma = BoardMDP.GAMMA
+        self.gamma = MDPBoard.GAMMA
         
         self.V = [[0.0] * w for _ in range(h)]
-        self.V[0][3]= BoardMDP.REWARD_POS_SINK
-        self.V[1][3] = BoardMDP.REWARD_NEG_SINK
+        self.V[0][3]= MDPBoard.REWARD_POS_SINK
+        self.V[1][3] = MDPBoard.REWARD_NEG_SINK
         
-        self.R = [[BoardMDP.REWARD_DEFAULT] * w for _ in range(h)]
-        self.R[0][3] = BoardMDP.REWARD_POS_SINK
-        self.R[1][3] = BoardMDP.REWARD_NEG_SINK
+        self.R = [[MDPBoard.REWARD_DEFAULT] * w for _ in range(h)]
+        self.R[0][3] = MDPBoard.REWARD_POS_SINK
+        self.R[1][3] = MDPBoard.REWARD_NEG_SINK
     
     
     #################################################################################
@@ -40,8 +39,8 @@ class BoardMDP:
             else:
                 sprimes = self.nxtstates((x,y))
                 expectutils = [sum([Tprob * self.V[xp][yp] for Tprob, (xp,yp) 
-                    in zip(self.Tprobs(a), sprimes)]) for a in BoardMDP.ACTIONS]
-                polgrid[x][y] = BoardMDP.ARROWS[np.argmax(expectutils)]
+                    in zip(self.Tprobs(a), sprimes)]) for a in MDPBoard.ACTIONS]
+                polgrid[x][y] = MDPBoard.ARROWS[np.argmax(expectutils)]
         
         return polgrid
     
@@ -76,7 +75,7 @@ class BoardMDP:
                 Eutils = self.expectutils(self.nxtstates((x,y)))
                 utilities = [self.R[x][y] + self.gamma*eua for eua in Eutils]
                 print(f'({x},{y}) :', [f'{u:.3f}' for u in utilities], ':', 
-                      BoardMDP.ACTIONS[np.argmax(utilities)], f'({max(utilities):.3f})')
+                      MDPBoard.ACTIONS[np.argmax(utilities)], f'({max(utilities):.3f})')
         print()
     #}
     
@@ -89,7 +88,7 @@ class BoardMDP:
     def policy(self, s):
         if s in self.absorbs: return None
         assert s not in self.blocks, f"ERROR: unreachable/blocked state: {s}"        
-        return BoardMDP.ACTIONS[np.argmax(self.expectutils(self.nxtstates(s)))]
+        return MDPBoard.ACTIONS[np.argmax(self.expectutils(self.nxtstates(s)))]
     
     # Given current state, returns the four (unweighted) possible
     # next states s', ordered: [UP, DOWN, LEFT, RIGHT], accounting
@@ -116,7 +115,7 @@ class BoardMDP:
     # of SUM over s' ( T(s,a,s')*V(s') ), a piece of the Bellman Eq.
     def expectutils(self, sprimes):
         return [sum([Tprob * self.V[xp][yp] for Tprob, (xp,yp) 
-            in zip(self.Tprobs(a), sprimes)]) for a in BoardMDP.ACTIONS]
+            in zip(self.Tprobs(a), sprimes)]) for a in MDPBoard.ACTIONS]
     
     # Iterates through ngames, each starting at state s0 and ending
     # at one of the absorbing states. Updates self.V after each move.
@@ -160,14 +159,14 @@ if __name__ == '__main__':
     
     prevpol = None
     for negsink in range(21):
-        BoardMDP.REWARD_NEG_SINK = -float(negsink)
+        MDPBoard.REWARD_NEG_SINK = -float(negsink)
 
-        game = BoardMDP()
+        game = MDPBoard()
         game.learn_pvalues(debug=0)
 
         pol = game.policygrid()
         if prevpol is None or pol != prevpol:
-            print(f"Neg sink reward: {BoardMDP.REWARD_NEG_SINK}\n")
+            print(f"Neg sink reward: {MDPBoard.REWARD_NEG_SINK}\n")
             game.print_policies(pol)
             game.print_vtable()
             prevpol = pol
